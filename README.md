@@ -34,6 +34,12 @@ npm start
 
 ### 可选的环境变量
 
+**查看剩余额度**：API 设置页面打开、保存或点击「刷新额度」时会查询官方数据。语音显示项目内识别、同传的预付资源包余量，方舟显示当前基础模型的初始免费推理 tokens。另列查询凭证所属账号的可用余额；同账号的两项服务共享这笔资金。资源包为空时仍可能按后付费使用。剩余资源不超过 10% 或可用余额不超过 ¥10 时在设置页标红。关闭页面后不会后台通知。
+
+在代理的 `.env` 中填写只读 IAM 用户的 `QUOTA_AK`、`QUOTA_SK`，授权 `speech_saas_prod:ResourcePacksStatus`、`ark:GetModelActivation` 和 `billing:QueryBalanceAcct` 三个查询操作。普通语音和方舟推理 Key 用于会议调用。管理凭证仅由代理读取；保存后点击「刷新额度」即可。请确保管理凭证和服务 Key 属于同一主账号，代理无法通过推理 Key 自动核对归属。
+
+若两项服务属于不同主账号，在同一文件分别设置 `SPEECH_QUOTA_AK`、`SPEECH_QUOTA_SK` 和 `ARK_QUOTA_AK`、`ARK_QUOTA_SK`。语音资源项目通过 `SPEECH_QUOTA_PROJECT` 指定，默认 default；自定义推理接入点请用 `ARK_QUOTA_MODEL` 指定基础模型名称。
+
 常规安装只需在扩展设置里填 Key。要指定方舟模型或语音资源，在项目根目录运行 `cp -n .env.example .env` 并编辑 `.env`：
 
 | 变量 | 用途与默认值 |

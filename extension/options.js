@@ -3,6 +3,13 @@ if (window.parent !== window) document.body.classList.add('embedded');
 const fields = {speech:'SPEECH_API_KEY',ark:'ARK_API_KEY'};
 const socket = new WebSocket('ws://127.0.0.1:18767/settings');
 let saved;
+function refreshQuota() {
+  if (!saved || socket.readyState !== WebSocket.OPEN) return;
+  $('refresh').disabled = true;
+  $('checked').textContent = '查询中…';
+  socket.send(JSON.stringify({type:'quota'}));
+}
+$('refresh').onclick = refreshQuota;
 
 function editable(enabled) {
   $('save').disabled = !enabled;
@@ -31,6 +38,20 @@ socket.onopen = async () => {
 };
 socket.onmessage = ({data}) => {
   const msg = JSON.parse(data);
+  if (msg.quota) {
+    for (const id of Object.keys(fields)) {
+      const rows = msg.quota[id].map(({text,low}) => {
+        const line = document.createElement('p');
+        line.textContent = low ? '额度偏低 · ' + text : text;
+        if (low) line.className = 'low-quota';
+        return line;
+      });
+      $(id+'-quota').replaceChildren(...rows);
+    }
+    $('refresh').disabled = false;
+    $('checked').textContent = new Date(msg.quota.checkedAt).toLocaleTimeString() + ' 查询';
+    return;
+  }
   if (!msg.values) {
     $('message').textContent = msg.error || '请重启新版代理，并重新加载扩展。';
     editable(Boolean(saved));
@@ -40,8 +61,11 @@ socket.onmessage = ({data}) => {
   saved = msg.values;
   for (const [id,key] of Object.entries(fields)) $(id).value = saved[key];
   editable(true);
+  refreshQuota();
 };
 socket.onclose = () => {
+  $('refresh').disabled = true;
+  $('checked').textContent = '已断开';
   editable(false);
   $('message').textContent = '无法连接设置服务，请从本项目运行 npm start 并重新加载扩展。';
 };

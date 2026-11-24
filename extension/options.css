@@ -6,3 +6,6 @@ main {max-width: 480px; margin: 24px auto} h1 {margin-bottom: 18px} section {bor
 .key-field input {padding-right:44px;min-height:40px}
 .key-field button {position:absolute;right:3px;top:50%;transform:translateY(-50%);width:36px;height:32px;padding:6px;border:0;background:transparent}
 .key-field img {width:18px;height:18px}
+.low-quota {color:#a33119;font-weight:600}
+.quota-tools {margin:12px 0;color:#53645d}
+#speech-quota,#ark-quota {font-size:13px;overflow-wrap:anywhere}

@@ -2,6 +2,7 @@ import http from 'node:http';
 import { createHash, randomBytes } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { settings } from './settings.js';
+import { quotas } from './quota.js';
 import { WebSocketServer } from 'ws';
 import { session } from './session.js';
 import { interpret } from './interpret.js';
@@ -35,12 +36,21 @@ httpServer.on('upgrade', (req, socket, head) => {
       if (req.url === '/settings') {
         client.on('error', () => client.terminate());
         let authenticated = false;
-        client.on('message', data => {
+        let querying = false;
+        client.on('message', async data => {
           try {
             const msg = JSON.parse(data);
             if (!authenticated) {
               if (msg.token !== settingsToken) return client.close(1008,'Unauthorized');
               authenticated = true;
+            } else if (msg.type === 'quota') {
+              if (querying) return;
+              querying = true;
+              try {
+                const quota = await quotas(local.config());
+                if (client.readyState === 1) client.send(JSON.stringify({quota}));
+              } finally { querying = false; }
+              return;
             } else {
               local.update(msg.changes);
             }
