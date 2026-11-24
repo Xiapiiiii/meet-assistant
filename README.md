@@ -1,5 +1,7 @@
 # Meet 会议助手
 
+**简体中文** | [English](README.en.md)
+
 Chrome 侧栏为 Google Meet 提供双语字幕和中译英发言。你可以只看字幕、只开同传，也可以同时使用两者。接收方使用普通 Meet 客户端即可。本文的音频路由按 macOS 和 BlackHole 2ch 编写。
 
 | 功能 | 输入 | 输出 | 所需服务 |
