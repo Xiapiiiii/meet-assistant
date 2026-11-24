@@ -61,6 +61,9 @@ export async function quotas(env, read = query) {
         if (model.startsWith('ep-')) return [{text:'请配置 ARK_QUOTA_MODEL 为基础模型名称'}];
         const data = await read(creds,'ark','GetModelActivation','2024-01-01',{FoundationModelName:model,WithFreeUsage:true});
         const free = data.Item?.InitialInferenceFreeUsage;
+        const packs = data.Item?.FreeResourcePackItems?.filter(pack => pack.Type === 'FreeInference');
+        if (packs?.length) return packs.map(pack => remaining(model + ' 免费推理额度',pack.Total,
+          typeof pack.Consumed === 'number' ? pack.Consumed + (pack.Reclaimed ?? 0) : undefined,'tokens'));
         return [remaining(model + ' 初始免费额度',free?.Total,free?.Consumed,'tokens')];
       }
       const resource = env.SPEECH_RESOURCE_ID || 'volc.seedasr.sauc.duration';

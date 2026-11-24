@@ -34,3 +34,10 @@ test('missing credentials and upstream failures never become zero balances',asyn
   assert.match(partial.ark[1].text,/AccessDenied/);
   assert.match(partial.speech[0].text,/未返回/);
 });
+
+test('reads free inference packs including reclaimed tokens',async () => {
+  const data = await quotas(env,async (_,service) => service === 'ark'
+    ? {Item:{FreeResourcePackItems:[{Type:'FreeInference',Total:1000,Consumed:25,Reclaimed:50}]}}
+    : {});
+  assert.match(data.ark[0].text,/925 \/ 1,000 tokens/);
+});
