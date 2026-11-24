@@ -1,4 +1,5 @@
 const $ = id => document.getElementById(id);
+if (window.parent !== window) document.body.classList.add('embedded');
 const fields = {speech:'SPEECH_API_KEY',ark:'ARK_API_KEY'};
 const socket = new WebSocket('ws://127.0.0.1:18767/settings');
 const clear = new Set();

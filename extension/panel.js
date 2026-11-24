@@ -1,6 +1,5 @@
 const $ = id => document.getElementById(id);
 let current;
-$('api-settings').onclick = () => chrome.runtime.openOptionsPage();
 function release(s) {
   s.stream?.getTracks().forEach(track => track.stop());
   if (s.audio && s.audio.state !== 'closed') void s.audio.close().catch(() => {});

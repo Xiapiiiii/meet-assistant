@@ -1,7 +1,10 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meet 会议助手</title><link rel="stylesheet" href="panel.css"></head>
 <body><header><h1>会议助手</h1><button id="toggle">开始监听</button></header>
-<div class="row"><p id="status" role="status">待连接</p><button id="api-settings">API 设置</button></div>
+<div class="settings-row"><p id="status" role="status">待连接</p>
+<details class="api-settings"><summary>API 设置</summary>
+<iframe src="options.html" loading="lazy" title="API 密钥设置"></iframe>
+</details></div>
 <main><section><div class="row"><h2>中译英发言</h2><button id="interpret-toggle" aria-pressed="false">开始同传</button></div>
 <label for="voice-input">原声麦克风</label> <select id="voice-input"><option value="">自动选择</option></select>
 <p id="interpret-status" role="status">Meet 麦克风请选择 BlackHole 2ch</p></section>
