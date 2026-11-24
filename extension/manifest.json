@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Meet 会议助手",
+  "version": "1.3.0",
+  "options_ui": {"page":"options.html","open_in_tab":true},
+  "minimum_chrome_version": "116",
+  "description": "会议实时双语字幕与中译英发言",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmN9jNeYtf/2TmBorkv3XreWch0dHELyI+X+izNe0x0qVAVrmOawZvZZImTzPTudf8nMMSbQLjjziqP4A6kHP54EuOYjRAj5HiOHEMaK14bzjNea456HCXKdAJ76keQHi+x25+ZigQyQpjOUYT6q+BegxXVGuWCsGKcIQLWBJtZhFkglGELNa/EYrpmKmWop/m7u5s4itljz3OMxqyIvNEczN4Ug10qu+g685NOakConv+Xyo8Ouiv8Qe9EYukk2y5o/EvFVTm5gPL2o4H8gMqRCrEMH8+7ImayAzXY6fMxAVmB2c1oFXNFqfyoNaVz7GEHEYj71qC+czEvqpLe02sQIDAQAB",
+  "permissions": [
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "https://meet.google.com/*",
+    "http://127.0.0.1/*"
+  ],
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "action": {
+    "default_title": "打开会议助手"
+  },
+  "side_panel": {
+    "default_path": "panel.html"
+  }
+}

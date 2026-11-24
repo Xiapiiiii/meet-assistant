@@ -1,0 +1,9 @@
+:root{font:14px/1.55 "Inter",system-ui,sans-serif;color:#212925;background:#fcfdfb}
+*{box-sizing:border-box}body{margin:0;padding:20px;min-width:220px}header,.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}h1,h2,p{margin:0}h1{font-size:21px}h2,summary{font-size:15px;font-weight:650}button{font:inherit;color:inherit;background:white;border:1px solid #c6cfc9;border-radius:5px;padding:5px 12px;cursor:pointer}button:disabled{opacity:.5;cursor:default}#toggle{background:#175746;color:white;border-color:#175746}button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #278d71;outline-offset:2px}
+#status,#partial,label,.pending{color:#53645d}#status{font-size:13px;margin:.5rem 0}
+section{border-top:1px solid #d8ded8;padding:18px 0}
+#captions{overflow:auto;max-height:60vh;margin-top:10px;overflow-wrap:anywhere}
+.caption{padding:9px 0;border-bottom:1px solid #e6ebe6}
+.caption p,#partial{white-space:pre-wrap}
+.translation{font-size:15px;color:#175746;margin-top:3px}
+.translation.pending,#partial{color:#65736b}

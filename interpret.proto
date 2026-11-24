@@ -1,0 +1,34 @@
+// Client-side subset of the Volcengine AST v2 wire format used by this proxy.
+// Field numbers follow https://www.volcengine.com/docs/6561/1756902 .
+syntax = "proto3";
+package data.speech.ast;
+message Metadata { string SessionID = 6; }
+message Caller { string uid = 1; }
+message Audio {
+  string format = 4;
+  string codec = 5;
+  int32 rate = 7;
+  int32 bits = 8;
+  int32 channel = 9;
+  bytes binary_data = 14;
+}
+message Languages {
+  string mode = 1;
+  string source_language = 2;
+  string target_language = 3;
+  string speaker_id = 4;
+}
+message TranslateRequest {
+  Metadata request_meta = 1;
+  int32 event = 2;
+  Caller user = 3;
+  Audio source_audio = 4;
+  Audio target_audio = 5;
+  Languages request = 6;
+}
+message ResultStatus { int32 StatusCode = 3; string Message = 4; }
+message TranslateResponse {
+  ResultStatus response_meta = 1;
+  int32 event = 2;
+  bytes data = 3;
+}
