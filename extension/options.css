@@ -2,3 +2,7 @@ main {max-width: 480px; margin: 24px auto} h1 {margin-bottom: 18px} section {bor
 .embedded {padding:0;min-width:0}
 .embedded main {margin:0}
 .embedded h1 {display:none}
+.key-field {position:relative}
+.key-field input {padding-right:44px;min-height:40px}
+.key-field button {position:absolute;right:3px;top:50%;transform:translateY(-50%);width:36px;height:32px;padding:6px;border:0;background:transparent}
+.key-field img {width:18px;height:18px}

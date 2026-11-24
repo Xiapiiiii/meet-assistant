@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Meet 会议助手",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "options_ui": {"page":"options.html","open_in_tab":true},
   "minimum_chrome_version": "116",
   "description": "会议实时双语字幕与中译英发言",

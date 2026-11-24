@@ -1,7 +1,9 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>API 设置 · Meet 会议助手</title><link rel="stylesheet" href="panel.css"><link rel="stylesheet" href="options.css"></head><body>
 <main><h1>API 设置</h1>
 <form id="settings">
-<section><label for="speech">豆包语音 API Key</label><p class="state" id="speech-state">正在读取</p><input id="speech" type="password" autocomplete="off" maxlength="1024" placeholder="输入新密钥"><button type="button" id="speech-clear">清除语音密钥</button></section>
-<section><label for="ark">火山方舟 API Key</label><p class="state" id="ark-state">正在读取</p><input id="ark" type="password" autocomplete="off" maxlength="1024" placeholder="输入新密钥"><button type="button" id="ark-clear">清除方舟密钥</button></section>
+<section><label for="speech">豆包语音 API Key</label>
+<div class="key-field"><input id="speech" disabled type="password" autocomplete="off" spellcheck="false" maxlength="1024"><button type="button" disabled id="speech-eye" aria-label="显示豆包语音密钥" title="显示豆包语音密钥"><img src="icons/eye.svg" alt=""></button></div></section>
+<section><label for="ark">火山方舟 API Key</label>
+<div class="key-field"><input id="ark" disabled type="password" autocomplete="off" spellcheck="false" maxlength="1024"><button type="button" disabled id="ark-eye" aria-label="显示火山方舟密钥" title="显示火山方舟密钥"><img src="icons/eye.svg" alt=""></button></div></section>
 <button id="save" disabled>保存</button><p role="status" id="message"></p>
 </form></main><script type="module" src="options.js"></script></body></html>

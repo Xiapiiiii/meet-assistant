@@ -2,43 +2,57 @@ const $ = id => document.getElementById(id);
 if (window.parent !== window) document.body.classList.add('embedded');
 const fields = {speech:'SPEECH_API_KEY',ark:'ARK_API_KEY'};
 const socket = new WebSocket('ws://127.0.0.1:18767/settings');
-const clear = new Set();
-let ready = false;
+let saved;
+
+function editable(enabled) {
+  $('save').disabled = !enabled;
+  for (const id of Object.keys(fields)) {
+    $(id).disabled = !enabled;
+    $(id+'-eye').disabled = !enabled;
+  }
+}
 for (const id of Object.keys(fields)) {
-  $(id+'-clear').onclick = () => {
-    clear.add(id);
-    $(id).value = '';
-    $(id+'-state').textContent = '保存后清除';
-  };
-  $(id).oninput = () => {
-    clear.delete(id);
-    $(id+'-state').textContent = $(id).value ? '保存后替换' : '保留原配置';
+  const eye = $(id+'-eye');
+  eye.onclick = () => {
+    const show = $(id).type === 'password';
+    $(id).type = show ? 'text' : 'password';
+    const action = show ? '隐藏' : '显示';
+    eye.title = action + (id === 'speech' ? '豆包语音' : '火山方舟') + '密钥';
+    eye.setAttribute('aria-label',eye.title);
+    eye.querySelector('img').src = show ? 'icons/eye-off.svg' : 'icons/eye.svg';
   };
 }
+socket.onopen = async () => {
+  try {
+    const res = await fetch(chrome.runtime.getURL('local-settings-token'),{cache:'no-store'});
+    if (!res.ok) throw Error();
+    socket.send(JSON.stringify({token:await res.text()}));
+  } catch { socket.close(); }
+};
 socket.onmessage = ({data}) => {
   const msg = JSON.parse(data);
-  $('save').disabled = false;
-  if (msg.error) { $('message').textContent = msg.error; return; }
-  for (const [id,key] of Object.entries(fields)) {
-    $(id).value = '';
-    $(id+'-state').textContent = msg.status[key] ? '已配置' : '未配置';
+  if (!msg.values) {
+    $('message').textContent = msg.error || '请重启新版代理，并重新加载扩展。';
+    editable(Boolean(saved));
+    return;
   }
-  clear.clear();
-  $('message').textContent = ready ? '已保存，下次开始监听或同传时生效。' : '';
-  ready = true;
+  $('message').textContent = saved ? '已保存，下次开始监听或同传时生效。' : '';
+  saved = msg.values;
+  for (const [id,key] of Object.entries(fields)) $(id).value = saved[key];
+  editable(true);
 };
 socket.onclose = () => {
-  $('save').disabled = true;
-  $('message').textContent = '无法连接本地代理。请运行 npm start 后刷新此页。';
+  editable(false);
+  $('message').textContent = '无法连接设置服务，请从本项目运行 npm start 并重新加载扩展。';
 };
 $('settings').onsubmit = e => {
   e.preventDefault();
-  if (socket.readyState !== WebSocket.OPEN) return;
+  if (!saved || socket.readyState !== WebSocket.OPEN) return;
   const changes = {};
   for (const [id,key] of Object.entries(fields)) {
-    if (clear.has(id)) changes[key] = '';
-    else if ($(id).value.trim()) changes[key] = $(id).value.trim();
+    const value = $(id).value.trim();
+    if (value !== saved[key]) changes[key] = value;
   }
-  $('save').disabled = true;
-  socket.send(JSON.stringify(changes));
+  editable(false);
+  socket.send(JSON.stringify({changes}));
 };

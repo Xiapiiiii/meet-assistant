@@ -1,6 +1,6 @@
 import http from 'node:http';
-import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { createHash, randomBytes } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { settings } from './settings.js';
 import { WebSocketServer } from 'ws';
 import { session } from './session.js';
@@ -10,6 +10,15 @@ const manifest = JSON.parse(readFileSync(new URL('./extension/manifest.json', im
 const id = createHash('sha256').update(Buffer.from(manifest.key, 'base64')).digest('hex')
   .slice(0,32).replace(/./g, c => 'abcdefghijklmnop'[parseInt(c,16)]);
 const origin = 'chrome-extension://' + id;
+// Only the locally installed, unpacked extension can fetch this private resource.
+const tokenFile = new URL('./extension/local-settings-token', import.meta.url);
+try {
+  writeFileSync(tokenFile,randomBytes(32).toString('hex'),{flag:'wx',mode:0o600});
+} catch (error) {
+  if (error.code !== 'EEXIST') throw error;
+}
+const settingsToken = readFileSync(tokenFile,'utf8');
+if (!/^[a-f0-9]{64}$/.test(settingsToken)) throw Error('本地设置凭证无效');
 const local = settings(new URL('./',import.meta.url));
 const httpServer = http.createServer((req, res) => {
   res.writeHead(req.url === '/' ? 200 : 404, {'Content-Type':'text/plain; charset=utf-8'});
@@ -25,9 +34,19 @@ httpServer.on('upgrade', (req, socket, head) => {
     try {
       if (req.url === '/settings') {
         client.on('error', () => client.terminate());
-        client.send(JSON.stringify({status:local.status()}));
+        let authenticated = false;
         client.on('message', data => {
-          try { client.send(JSON.stringify({status:local.update(JSON.parse(data))})); }
+          try {
+            const msg = JSON.parse(data);
+            if (!authenticated) {
+              if (msg.token !== settingsToken) return client.close(1008,'Unauthorized');
+              authenticated = true;
+            } else {
+              local.update(msg.changes);
+            }
+            const {SPEECH_API_KEY = '',ARK_API_KEY = ''} = local.config();
+            client.send(JSON.stringify({values:{SPEECH_API_KEY,ARK_API_KEY}}));
+          }
           catch { client.send(JSON.stringify({error:'保存失败，请检查密钥格式和目录写入权限'})); }
         });
         return;

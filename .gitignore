@@ -3,6 +3,7 @@ node_modules/
 .env.*
 !.env.example
 .meet-settings*
+extension/local-settings-token
 .DS_Store
 *.log
 *.wav
