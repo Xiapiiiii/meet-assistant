@@ -71,6 +71,8 @@ export function session(client, env, endpoints = {}) {
       try {
         const text = await requestTranslation(part.requested,part.controller.signal, text => {
           if (part !== draft) return;
+          // Keep the previous revision readable while a replacement streams from its beginning.
+          if (text.length < (part.visible?.length || 0)) return;
           part.visible = text;
           showPartial(part);
         });
@@ -123,7 +125,7 @@ export function session(client, env, endpoints = {}) {
       const text = await requestTranslation(source,cancelled.signal);
       send('translation',{id,text});
     } catch (error) {
-      if (!cancelled.signal.aborted) send('translation',{id,text:'翻译失败（' + error.message + '）'});
+      if (!cancelled.signal.aborted) send('translation',{id,failed:true,text:'翻译失败（' + error.message + '）'});
     } finally {
       pending--;
       closeWhenDone();
@@ -145,8 +147,9 @@ export function session(client, env, endpoints = {}) {
           if (u.end_time <= lastEnd) continue;
           lastEnd = u.end_time;
           const reusable = draft.requested === u.text && draft.translated;
+          const preview = draft.visible || '';
           resetDraft();
-          send('final',{id:lastEnd,text:u.text});
+          send('final',{id:lastEnd,text:u.text,preview});
           if (reusable) send('translation',{id:lastEnd,text:reusable});
           else void translate(lastEnd,u.text);
         } else partial(u.text);

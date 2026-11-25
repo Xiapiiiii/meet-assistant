@@ -1,5 +1,29 @@
 const $ = id => document.getElementById(id);
 let current;
+function caption(s) {
+  if (s.draft) return s.draft;
+  const row = document.createElement('div');
+  row.className = 'caption';
+  const source = document.createElement('p');
+  source.dir = 'auto';
+  const translation = document.createElement('p');
+  translation.className = 'translation';
+  row.append(source,translation);
+  $('lines').append(row);
+  if ($('lines').childElementCount > 64) $('lines').firstChild.remove();
+  s.draft = {source,translation};
+  return s.draft;
+}
+
+// Keep the text node and its unchanged prefix when a caption is extended or corrected.
+function revise(line,text) {
+  if (!text || text === line.textContent) return;
+  if (!line.firstChild) { line.textContent = text; return; }
+  const node = line.firstChild;
+  let start = 0;
+  while (start < node.length && node.data[start] === text[start]) start++;
+  node.replaceData(start,node.length-start,text.slice(start));
+}
 function release(s) {
   s.stream?.getTracks().forEach(track => track.stop());
   if (s.audio && s.audio.state !== 'closed') void s.audio.close().catch(() => {});
@@ -13,12 +37,6 @@ function finish(s, message) {
   $('status').textContent = message;
   $('toggle').disabled = false;
   $('toggle').textContent = '开始监听';
-  for (const node of $('lines').querySelectorAll('.pending')) {
-    node.textContent = '翻译未完成';
-    node.classList.remove('pending');
-  }
-  $('partial').textContent = '';
-  $('preview').textContent = '';
 }
 function stop(s) {
   if (!s.ready || !s.node) return finish(s,'已停止');
@@ -38,31 +56,24 @@ function onEvent(s, msg) {
       $('status').textContent = '正在监听 Meet 标签页';
       break;
     case 'final': {
-      $('partial').textContent = '';
-      const row = document.createElement('div');
-      row.className = 'caption';
-      const source = document.createElement('p');
-      source.dir = 'auto';
-      source.textContent = msg.text;
-      const translation = document.createElement('p');
-      translation.id = 'zh-' + msg.id;
-      translation.className = 'translation pending';
-      translation.textContent = $('preview').textContent || '翻译中…';
-      $('preview').textContent = '';
-      row.append(source, translation);
-      $('lines').append(row);
-      if ($('lines').childElementCount > 64) $('lines').firstChild.remove();
+      const row = caption(s);
+      revise(row.source,msg.text);
+      revise(row.translation,msg.preview);
+      row.translation.id = 'zh-' + msg.id;
+      s.draft = null;
       break;
     }
-    case 'partial':
-      $('partial').textContent = msg.source ?? msg.text;
-      $('preview').textContent = msg.preview || '';
+    case 'partial': {
+      const row = caption(s);
+      revise(row.source,msg.source ?? msg.text);
+      revise(row.translation,msg.preview);
       break;
+    }
     case 'translation': {
       const line = $('zh-' + msg.id);
       if (line) {
-        line.textContent = msg.text;
-        line.classList.remove('pending');
+        if (msg.failed && line.textContent) line.title = msg.text;
+        else revise(line,msg.text);
       }
       break;
     }
@@ -75,8 +86,6 @@ async function start() {
   $('toggle').textContent = '停止';
   $('status').textContent = '正在连接';
   $('lines').replaceChildren();
-  $('preview').textContent = '';
-  $('partial').textContent = '';
   try {
     const [tab] = await chrome.tabs.query({active:true,currentWindow:true});
     if (!tab?.url?.startsWith('https://meet.google.com/')) throw new Error('请在 Google Meet 标签页点扩展图标后开始');
