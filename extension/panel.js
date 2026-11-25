@@ -31,6 +31,7 @@ function release(s) {
 function finish(s, message) {
   if (current !== s) return;
   current = null;
+  $('local-mode').disabled = false;
   clearTimeout(s.timer);
   release(s);
   s.socket?.close();
@@ -83,6 +84,7 @@ function onEvent(s, msg) {
 async function start() {
   const s = {ready:false, ending:false};
   current = s;
+  $('local-mode').disabled = true;
   $('toggle').textContent = '停止';
   $('status').textContent = '正在连接';
   $('lines').replaceChildren();

@@ -90,7 +90,11 @@ Click **开始同传** (Start interpreting) and allow microphone access. Once th
 
 Click **停止同传** (Stop interpreting) to stop microphone capture and discard queued translated audio. Muting in Meet only stops transmission to participants. To stop sending audio to the interpretation service, use the extension's stop button. To speak Chinese directly to the meeting again, select your physical microphone in Meet.
 
-Enable **测试模式：监听英文译音** (monitor English audio) and choose your headphones under **监听设备**. You will hear the same English audio sent to BlackHole. Each translated phrase appears below the device selector as playback starts. Turn off test mode to hide the text and stop local playback. For a private sound check, mute yourself in Meet.
+During a meeting, enable **监听英文译音** (monitor English audio) and choose your headphones under **播放设备**. You will hear the English audio sent to BlackHole. **我的英文字幕** shows each translated phrase as playback starts.
+
+### Standalone sound check
+
+Start the local proxy and enter a Doubao Speech key with simultaneous interpretation enabled in the extension’s API settings. Open the extension from a regular Chrome tab, choose **本地试音** (local sound check), select your microphone and headphones, and click **开始试音**. Allow microphone access when prompted. Speak Chinese to hear Doubao’s English translation through the selected output and see the corresponding captions. This mode works without Meet or BlackHole. Click **停止试音** to stop microphone capture.
 
 ## Troubleshooting
 

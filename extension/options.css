@@ -9,3 +9,9 @@ main {max-width: 480px; margin: 24px auto} h1 {margin-bottom: 18px} section {bor
 .low-quota {color:#a33119;font-weight:600}
 .quota-tools {margin:12px 0;color:#53645d}
 #speech-quota,#ark-quota {font-size:13px;overflow-wrap:anywhere}
+.key-field input {border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink)}
+section {border-color:var(--line)}
+#save {background:var(--accent);color:var(--on-accent);border:0}
+#message,.quota-tools {color:var(--muted)}
+a {color:var(--accent)}
+@media(prefers-color-scheme:dark){.key-field img{filter:invert(1)}.low-quota{color:#ffa292}}

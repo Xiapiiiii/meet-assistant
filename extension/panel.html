@@ -1,16 +1,47 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Meet 会议助手</title><link rel="stylesheet" href="panel.css"></head>
-<body><header><h1>会议助手</h1><button id="toggle">开始监听</button></header>
-<div class="settings-row"><p id="status" role="status">待连接</p>
-<details class="api-settings"><summary>API 设置</summary>
-<iframe src="options.html" loading="lazy" title="API 密钥设置"></iframe>
-</details></div>
-<main><section><div class="row"><h2>中译英发言</h2><button id="interpret-toggle" aria-pressed="false">开始同传</button></div>
-<label for="voice-input">原声麦克风</label> <select id="voice-input"><option value="">自动选择</option></select>
-<div><label><input id="monitor" type="checkbox"> 测试模式：监听英文译音</label></div>
-<div id="monitor-options" hidden><label for="monitor-output">监听设备</label> <select id="monitor-output"></select>
-<div id="spoken-caption" lang="en" aria-label="我的英文译音字幕" aria-live="polite"></div></div>
-<p id="monitor-status" role="status"></p>
-<p id="interpret-status" role="status">Meet 麦克风请选择 BlackHole 2ch</p></section>
-<section><h2>双语字幕</h2><div id="captions" tabindex="0" aria-label="会议原文与中文翻译"><div id="lines"></div></div></section></main>
-<script src="panel.js" type="module"></script><script src="interpret-panel.js" type="module"></script></body></html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Meet 会议助手</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body class="panel">
+  <header class="toolbar">
+    <h1>会议助手</h1>
+    <details class="api-settings">
+      <summary title="API 设置" aria-label="API 设置"><i class="icon settings"></i></summary>
+      <iframe src="options.html" loading="lazy" title="API 设置"></iframe>
+    </details>
+  </header>
+  <fieldset class="modes" id="modes" aria-label="工作模式">
+    <label><input type="radio" name="mode" id="meeting-mode" checked><span><i class="icon video"></i>会议</span></label>
+    <label><input type="radio" name="mode" id="local-mode"><span><i class="icon headphones"></i>本地试音</span></label>
+  </fieldset>
+  <main>
+    <section class="tool">
+      <div class="heading"><i class="icon voice"></i><h2>中译英发言</h2></div>
+      <div class="devices">
+        <label class="field" for="voice-input">麦克风<select id="voice-input"><option value="">自动选择</option></select></label>
+        <label class="setting" id="monitor-row" for="monitor">监听英文译音<input id="monitor" type="checkbox" role="switch"></label>
+        <label class="field" id="monitor-options" for="monitor-output" hidden>播放设备<select id="monitor-output"></select></label>
+      </div>
+      <button class="primary" id="interpret-toggle" aria-pressed="false">开始同传</button>
+      <p class="status" id="interpret-status" role="status">Meet 麦克风请选择 BlackHole 2ch</p>
+      <p class="status" id="monitor-status" role="status"></p>
+    </section>
+    <section id="english-section" hidden>
+      <div class="heading"><i class="icon subtitles"></i><h2>我的英文字幕</h2></div>
+      <div class="transcript" id="spoken-caption" lang="en" aria-live="polite"></div>
+    </section>
+    <section id="meeting-section">
+      <div class="section-bar"><div class="heading"><i class="icon subtitles"></i><h2>会议双语字幕</h2></div>
+        <button class="secondary" id="toggle">开始监听</button></div>
+      <p class="status" id="status" role="status">待连接</p>
+      <div id="captions" tabindex="0" aria-label="会议原文与中文翻译"><div id="lines"></div></div>
+    </section>
+  </main>
+  <script src="panel.js" type="module"></script>
+  <script src="interpret-panel.js" type="module"></script>
+</body>
+</html>

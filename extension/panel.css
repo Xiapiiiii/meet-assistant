@@ -1,15 +1,65 @@
-:root{font:14px/1.55 "Inter",system-ui,sans-serif;color:#212925;background:#fcfdfb}
-*{box-sizing:border-box}body{margin:0;padding:20px;min-width:220px}header,.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}h1,h2,p{margin:0}h1{font-size:21px}h2,summary{font-size:15px;font-weight:650}button{font:inherit;color:inherit;background:white;border:1px solid #c6cfc9;border-radius:5px;padding:5px 12px;cursor:pointer}button:disabled{opacity:.5;cursor:default}#toggle{background:#175746;color:white;border-color:#175746}button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid #278d71;outline-offset:2px}
-#status,#partial,label,.pending{color:#53645d}#status{font-size:13px;margin:.5rem 0}
-section{border-top:1px solid #d8ded8;padding:18px 0}
-#captions{overflow:auto;max-height:60vh;margin-top:10px;overflow-wrap:anywhere}
-.caption{padding:9px 0;border-bottom:1px solid #e6ebe6}
-.caption p,#partial{white-space:pre-wrap}
-.translation{font-size:15px;color:#175746;margin-top:3px}
-.translation.pending,#partial{color:#65736b}
-#monitor-output{max-width:100%}
-#spoken-caption:not(:empty){margin-top:6px;padding-left:8px;border-left:2px solid #278d71;overflow-wrap:anywhere}
-.settings-row{display:flow-root;margin:8px 0}
-.settings-row #status{float:left;max-width:calc(100% - 90px)}
-.api-settings summary{width:fit-content;margin-left:auto;padding:5px 10px;border:1px solid #c6cfc9;border-radius:5px;background:white;cursor:pointer;font:inherit}
-.api-settings iframe{display:block;clear:both;width:100%;height:350px;max-height:65vh;border:0;margin:8px 0}
+:root {
+  color-scheme: light dark;
+  --paper: #fbfbfd; --surface: #fff; --ink: #202126; --muted: #62646e;
+  --line: #dddde3; --track: #eaeaf0; --accent: #185fc5; --on-accent: #fff;
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "PingFang SC", system-ui, sans-serif;
+  color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --paper:#1b1b1e; --surface:#29292d; --ink:#f0f0f3; --muted:#b0b0ba;
+    --line:#404045; --track:#343438; --accent:#91bbff; --on-accent:#102643; }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; padding: 18px; }
+.panel { max-width: 640px; margin: auto; }
+h1,h2,p { margin: 0; } h1 { font-size: 21px; font-weight: 700; } h2 { font-size: 16px; font-weight: 650; }
+button,select,input,summary { font: inherit; }
+button,select,summary { cursor: pointer; }
+button { border: 1px solid var(--line); border-radius: 7px; background: var(--surface); color: var(--ink); padding: 6px 12px; }
+button:disabled,fieldset:disabled,.modes label:has(input:disabled) { opacity: .55; cursor: default; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toolbar,.section-bar,.heading,.setting { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.toolbar { display:block; position:relative; margin:0 0 18px; }
+.toolbar h1 { position:absolute; left:0; top:1px; }
+.api-settings summary { margin-left:auto; }
+.api-settings summary { display:grid; place-items:center; width:34px; height:34px; border-radius:7px; color:var(--muted); list-style:none; }
+.api-settings summary:hover,.api-settings[open] summary { background:var(--track); }
+.api-settings summary::-webkit-details-marker { display:none; }
+.api-settings iframe { width:100%; height:350px; max-height:60vh; border:0; }
+.icon { flex:none; width:18px; height:18px; display:inline-block; background:currentColor; mask:var(--symbol) center/contain no-repeat; }
+.settings { --symbol:url(icons/settings-2.svg); } .video { --symbol:url(icons/video.svg); }
+.headphones { --symbol:url(icons/headphones.svg); } .voice { --symbol:url(icons/audio-lines.svg); }
+.subtitles { --symbol:url(icons/captions.svg); }
+.modes { display:grid; grid-template-columns:1fr 1fr; min-width:0; border:0; margin:0; padding:3px; background:var(--track); border-radius:8px; }
+.modes label { min-width:0; position:relative; }
+.modes input { position:absolute; opacity:0; }
+.modes span { display:flex; align-items:center; justify-content:center; gap:7px; min-height:32px; color:var(--muted); font-size:13px; font-weight:600; border-radius:6px; cursor:pointer; }
+.modes .icon { width:15px; height:15px; }
+.modes input:checked + span { background:var(--surface); color:var(--ink); box-shadow:0 1px 3px #0002; }
+.modes input:focus-visible + span { outline:2px solid var(--accent); }
+.panel main > section { padding:22px 0; }
+.panel main > section + section { border-top:1px solid var(--line); }
+.heading { justify-content:flex-start; }
+.heading .icon { color:var(--accent); }
+.devices { margin:14px 0; }
+.field,.setting { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:43px; }
+.devices label + label { border-top:1px solid var(--line); }
+.field select { min-width:0; width:65%; max-width:390px; color:var(--ink); font-size:13px; padding:5px 6px; border-radius:6px; border:1px solid var(--line); background:var(--surface); text-overflow:ellipsis; }
+.setting input { appearance:none; width:34px; height:21px; margin:0; border-radius:20px; background:var(--muted); position:relative; cursor:pointer; }
+.setting input:before { content:""; display:block; position:absolute; top:3px; left:3px; width:15px; height:15px; border-radius:50%; background:#fff; }
+.setting input:checked { background:#24834b; } .setting input:checked:before { left:16px; }
+.primary { width:100%; min-height:38px; font-weight:600; border:0; color:var(--on-accent); background:var(--accent); }
+.primary[aria-pressed="true"] { color:var(--ink); background:var(--track); }
+.secondary { font-size:13px; font-weight:550; }
+.primary:hover,.secondary:hover { filter:brightness(.94); }
+.status { font-size:12px; color:var(--muted); overflow-wrap:anywhere; }
+.status:not(:empty) { margin-top:8px; }
+.transcript,#captions { overflow-wrap:anywhere; }
+.transcript { margin-top:12px; font-size:16px; line-height:1.55; }
+.transcript:empty::after { content:"等待英文译音…"; font-size:13px; color:var(--muted); }
+#captions { overflow:auto; max-height:60vh; }
+.caption { padding:10px 0; border-bottom:1px solid var(--line); }
+.caption p { white-space:pre-wrap; }
+.translation { color:var(--accent); margin-top:4px; }
+.pending { color:var(--muted); }
