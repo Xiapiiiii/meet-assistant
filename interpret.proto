@@ -31,4 +31,7 @@ message TranslateResponse {
   ResultStatus response_meta = 1;
   int32 event = 2;
   bytes data = 3;
+  string text = 4;
+  int32 start_time = 5;
+  int32 end_time = 6;
 }

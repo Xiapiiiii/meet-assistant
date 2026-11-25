@@ -7,6 +7,10 @@
 </details></div>
 <main><section><div class="row"><h2>中译英发言</h2><button id="interpret-toggle" aria-pressed="false">开始同传</button></div>
 <label for="voice-input">原声麦克风</label> <select id="voice-input"><option value="">自动选择</option></select>
+<div><label><input id="monitor" type="checkbox"> 测试模式：监听英文译音</label></div>
+<div id="monitor-options" hidden><label for="monitor-output">监听设备</label> <select id="monitor-output"></select>
+<div id="spoken-caption" lang="en" aria-label="我的英文译音字幕" aria-live="polite"></div></div>
+<p id="monitor-status" role="status"></p>
 <p id="interpret-status" role="status">Meet 麦克风请选择 BlackHole 2ch</p></section>
 <section><h2>双语字幕</h2><div id="captions" tabindex="0" aria-label="会议原文与中文翻译"><div id="lines"></div></div></section></main>
 <script src="panel.js" type="module"></script><script src="interpret-panel.js" type="module"></script></body></html>

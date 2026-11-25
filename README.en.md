@@ -90,6 +90,8 @@ Click **开始同传** (Start interpreting) and allow microphone access. Once th
 
 Click **停止同传** (Stop interpreting) to stop microphone capture and discard queued translated audio. Muting in Meet only stops transmission to participants. To stop sending audio to the interpretation service, use the extension's stop button. To speak Chinese directly to the meeting again, select your physical microphone in Meet.
 
+Enable **测试模式：监听英文译音** (monitor English audio) and choose your headphones under **监听设备**. You will hear the same English audio sent to BlackHole. Each translated phrase appears below the device selector as playback starts. Turn off test mode to hide the text and stop local playback. For a private sound check, mute yourself in Meet.
+
 ## Troubleshooting
 
 | Symptom | What to check |

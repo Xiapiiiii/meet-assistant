@@ -2,11 +2,60 @@ const toggle = document.getElementById('interpret-toggle');
 const status = document.getElementById('interpret-status');
 const inputs = document.getElementById('voice-input');
 const media = navigator.mediaDevices;
+const monitor = document.getElementById('monitor');
+const outputs = document.getElementById('monitor-output');
+const monitorStatus = document.getElementById('monitor-status');
+const spokenCaption = document.getElementById('spoken-caption');
 let session;
+
+function outputChoices(devices) {
+  const previous = outputs.value;
+  const physical = devices.filter(d => d.kind === 'audiooutput' && d.label &&
+    !['default','communications'].includes(d.deviceId) && !/BlackHole|Virtual/i.test(d.label));
+  const preferred = devices.find(d => d.kind === 'audiooutput' && d.deviceId === 'default');
+  outputs.replaceChildren(...physical.map(d => new Option(d.label,d.deviceId)));
+  const choice = physical.find(d => d.deviceId === previous) ||
+    physical.find(d => d.groupId && d.groupId === preferred?.groupId) || physical[0];
+  if (choice) outputs.value = choice.deviceId;
+}
+
+function detachMonitor(s) {
+  if (!s.player) return;
+  s.player.pause();
+  s.player.srcObject = null;
+  s.player = null;
+}
+
+async function updateMonitor() {
+  const s = session;
+  document.getElementById('monitor-options').hidden = !monitor.checked;
+  spokenCaption.textContent = monitor.checked ? s?.currentCaption || '' : '';
+  monitorStatus.textContent = '';
+  if (!s?.monitorBus) return;
+  detachMonitor(s);
+  if (!monitor.checked) return;
+  const player = s.player = new Audio();
+  try {
+    if (!outputs.value || outputs.value === s.output) throw Error('请选择耳机或扬声器');
+    await player.setSinkId(outputs.value);
+    if (s.player !== player) return;
+    player.srcObject = s.monitorBus.stream;
+    await player.play();
+  } catch (err) {
+    if (s.player !== player) return;
+    detachMonitor(s);
+    monitorStatus.textContent = '本机监听未启动：' + err.message;
+  }
+}
+monitor.onchange = outputs.onchange = updateMonitor;
 
 function stop(s, message) {
   if (session !== s) return;
   session = null;
+  for (const timer of s.captionTimers) clearTimeout(timer);
+  detachMonitor(s);
+  s.monitorBus?.stream.getTracks().forEach(t => t.stop());
+  monitorStatus.textContent = '';
   s.stream?.getTracks().forEach(track => track.stop());
   s.socket?.close();
   s.nodes.forEach(node => node.stop());
@@ -44,15 +93,28 @@ function play(s, bytes) {
   const node = s.audio.createBufferSource();
   node.buffer = buffer;
   node.connect(s.audio.destination);
+  node.connect(s.monitorBus);
   s.nodes.add(node);
   node.onended = () => { s.nodes.delete(node); node.disconnect(); };
   node.start(when);
+  if (s.nextCaption !== undefined) {
+    const text = s.nextCaption;
+    s.nextCaption = undefined;
+    const timer = setTimeout(() => {
+      s.captionTimers.delete(timer);
+      if (session !== s) return;
+      s.currentCaption = text;
+      if (monitor.checked) spokenCaption.textContent = text;
+    }, Math.max(0,(when - s.audio.currentTime) * 1000));
+    s.captionTimers.add(timer);
+  }
   s.next = when + buffer.duration;
 }
 
 async function start() {
-  const s = {nodes:new Set(),next:0,ready:false};
+  const s = {nodes:new Set(),captionTimers:new Set(),next:0,ready:false};
   session = s;
+  spokenCaption.textContent = '';
   toggle.textContent = '停止同传';
   toggle.setAttribute('aria-pressed','true');
   inputs.disabled = true;
@@ -71,6 +133,7 @@ async function start() {
     }
     if (session !== s) return;
     const choices = microphones(devices);
+    outputChoices(devices);
     const mic = choices.find(d => d.deviceId === inputs.value) || choices[0];
     const output = blackHole(devices);
     if (!output) throw new Error('找不到 BlackHole 2ch，请安装驱动并重新打开 Chrome');
@@ -91,6 +154,8 @@ async function start() {
     await s.audio.resume();
     await s.audio.audioWorklet.addModule('pcm.js');
     if (session !== s) return;
+    s.monitorBus = s.audio.createMediaStreamDestination();
+    void updateMonitor();
     const capture = new AudioWorkletNode(s.audio,'pcm16',{channelCount:1,channelCountMode:'explicit',
       processorOptions:{frameSize:1280}});
     s.audio.createMediaStreamSource(s.stream).connect(capture);
@@ -103,6 +168,7 @@ async function start() {
       try {
         if (data instanceof ArrayBuffer) return play(s,data);
         const msg = JSON.parse(data);
+        if (msg.type === 'spokenCaption') { s.nextCaption = msg.text; return; }
         if (msg.type === 'error') return stop(s,msg.text);
         if (msg.type === 'ready') {
           s.ready = true;
@@ -131,7 +197,17 @@ window.addEventListener('pagehide', () => { if (session) stop(session,'同传已
 media.addEventListener('devicechange',async () => {
   const s = session;
   const devices = await media.enumerateDevices();
+  if (s !== session) return;
+  const oldOutput = outputs.value;
+  outputChoices(devices);
+  if (oldOutput && outputs.value !== oldOutput && monitor.checked) {
+    monitor.checked = false;
+    void updateMonitor();
+    monitorStatus.textContent = '监听设备已断开';
+  }
   if (s?.output && !devices.some(d => d.deviceId === s.output)) stop(s,'BlackHole 已断开');
   if (!session) microphones(devices);
 });
-void media.enumerateDevices().then(devices => { if (!session) microphones(devices); }).catch(() => {});
+void media.enumerateDevices().then(devices => {
+  if (!session) { microphones(devices); outputChoices(devices); }
+}).catch(() => {});

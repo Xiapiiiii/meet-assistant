@@ -26,6 +26,8 @@ export function interpret(client, env, url = endpoint) {
   }});
   let ready = false;
   let firstFrame = true;
+  const subtitles = new Map();
+  let partialSubtitle = '';
   const timer = setTimeout(() => fail('等待同传会话超时'),15000);
   function send(event, fields = {}) {
     upstream.send(Request.encode({event,request_meta:{SessionID:sessionId},...fields}).finish());
@@ -42,11 +44,23 @@ export function interpret(client, env, url = endpoint) {
     if (client.readyState !== WebSocket.OPEN) return;
     try {
       const msg = Response.decode(bytes);
+      const segment = msg.start_time + ':' + msg.end_time;
       switch (msg.event) {
         case 150:
           clearTimeout(timer);
           ready = true;
           client.send(JSON.stringify({type:'ready'}));
+          break;
+        case 653: partialSubtitle = ''; break;
+        case 654: partialSubtitle += msg.text; break;
+        case 655:
+          subtitles.set(segment, (msg.text || partialSubtitle).trim());
+          if (subtitles.size > 64) subtitles.delete(subtitles.keys().next().value);
+          partialSubtitle = '';
+          break;
+        case 350:
+          client.send(JSON.stringify({type:'spokenCaption',text:subtitles.get(segment) || msg.text || ''}));
+          subtitles.delete(segment);
           break;
         case 352:
           if (!ready || !msg.data.length) break;

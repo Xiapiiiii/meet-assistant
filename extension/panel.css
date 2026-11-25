@@ -7,6 +7,8 @@ section{border-top:1px solid #d8ded8;padding:18px 0}
 .caption p,#partial{white-space:pre-wrap}
 .translation{font-size:15px;color:#175746;margin-top:3px}
 .translation.pending,#partial{color:#65736b}
+#monitor-output{max-width:100%}
+#spoken-caption:not(:empty){margin-top:6px;padding-left:8px;border-left:2px solid #278d71;overflow-wrap:anywhere}
 .settings-row{display:flow-root;margin:8px 0}
 .settings-row #status{float:left;max-width:calc(100% - 90px)}
 .api-settings summary{width:fit-content;margin-left:auto;padding:5px 10px;border:1px solid #c6cfc9;border-radius:5px;background:white;cursor:pointer;font:inherit}
