@@ -6,7 +6,7 @@ Meet Assistant is a Chrome side panel for Google Meet. It shows live captions wi
 
 | Feature | Input | Output | Required services |
 | --- | --- | --- | --- |
-| Bilingual captions | Audio playing in the Meet tab | Live transcript with a Chinese translation beneath each finalized utterance | Doubao Streaming Speech Recognition 2.0 and a Volcengine Ark text model |
+| Bilingual captions | Audio playing in the Meet tab | Live transcript with rolling Chinese previews and finalized translations | Doubao Streaming Speech Recognition 2.0 and a Volcengine Ark text model |
 | Chinese-to-English interpretation | Your physical microphone | English speech routed into Meet through BlackHole | Doubao Simultaneous Interpretation 2.0 |
 
 ## 1. Start the local proxy
@@ -30,7 +30,7 @@ Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, 
 
 **Doubao Speech.** In the project you intend to use, activate Streaming Speech Recognition 2.0 for captions (hourly billing by default) and Simultaneous Interpretation 2.0 for voice translation, according to the features you need. Create a Speech API key in the same project. The console shows the available trial quota, rates, and activation terms. [Speech activation](https://console.volcengine.com/speech/new/setting/activate?projectName=default) · [Speech API keys](https://console.volcengine.com/speech/new/setting/apikeys?projectName=default)
 
-**Volcengine Ark.** Captions use a Beijing-region text model to translate finalized utterances. Activate Doubao-Seed-2.1-pro or select another compatible model available in your project. Create an Ark key with access to that model. You can leave this key empty if you only use voice interpretation. [Model activation](https://console.volcengine.com/ark/region:cn-beijing/openManagement) · [Ark API keys](https://ark.volcengine.com/region:cn-beijing/apikey)
+**Volcengine Ark.** Captions use a Beijing-region text model to translate partial and finalized utterances. Activate Doubao-Seed-2.1-pro or select another compatible model available in your project. Create an Ark key with access to that model. You can leave this key empty if you only use voice interpretation. [Model activation](https://console.volcengine.com/ark/region:cn-beijing/openManagement) · [Ark API keys](https://ark.volcengine.com/region:cn-beijing/apikey)
 
 **Enter your keys.** Open the extension side panel and click **API 设置** (API settings), or open **Extension options** from the extension details page. Enter the Speech and Ark keys, then click **保存** (Save). Each eye icon shows or hides one key. To replace a key, edit its value and save. To clear it, empty the field and save. Changes take effect the next time you start captions or interpretation.
 
@@ -67,7 +67,7 @@ For services on different accounts, use `SPEECH_QUOTA_AK` and `SPEECH_QUOTA_SK` 
 
 1. Join a Google Meet call. While on the meeting tab, open the side panel and click **开始监听** (Start listening).
 2. In Chrome's share dialog, choose the **Chrome tab** containing the call, enable **Share tab audio**, and click **Share**.
-3. The transcript updates as people speak. Each finalized utterance gets its own Chinese translation. The tab supplies a mixed track containing remote speakers and any shared media. The panel keeps the most recent 64 utterances.
+3. The transcript updates as people speak. Chinese previews update during speech and are corrected at finalization. Previews increase Ark token usage. The tab supplies a mixed track containing remote speakers and any shared media. The panel keeps the most recent 64 utterances.
 4. Click **停止** (Stop) to finish transcription and wait for the last translation. Starting a new session clears the previous captions.
 
 ## 5. Speak Chinese and send English audio to Meet (macOS)
@@ -105,7 +105,7 @@ Click **停止同传** (Stop interpreting) to stop microphone capture and discar
 
 ## Data flow and credentials
 
-The proxy listens on `127.0.0.1:18767` and validates the WebSocket origin and host. For captions, it sends the selected tab's audio to Doubao Speech and finalized text to Ark. For interpretation, it sends your selected microphone's audio to Doubao and routes the returned English PCM audio to BlackHole. Use the extension in meetings where transcription and translation are permitted.
+The proxy listens on `127.0.0.1:18767` and validates the WebSocket origin and host. For captions, it sends the selected tab's audio to Doubao Speech and partial and finalized text to Ark. For interpretation, it sends your selected microphone's audio to Doubao and routes the returned English PCM audio to BlackHole. Use the extension in meetings where transcription and translation are permitted.
 
 The proxy stores keys saved through settings in `.meet-settings.json` at the repository root (plain text with Unix permissions `0600`). On first start it creates `extension/local-settings-token`. The settings page presents that token before reading the two API keys. Load the extension from the same checkout as the running proxy. Git ignores the credential files and `.env`. The application processes audio and captions in memory and does not write recordings by default.
 

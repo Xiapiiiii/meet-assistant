@@ -18,6 +18,7 @@ function finish(s, message) {
     node.classList.remove('pending');
   }
   $('partial').textContent = '';
+  $('preview').textContent = '';
 }
 function stop(s) {
   if (!s.ready || !s.node) return finish(s,'已停止');
@@ -46,13 +47,17 @@ function onEvent(s, msg) {
       const translation = document.createElement('p');
       translation.id = 'zh-' + msg.id;
       translation.className = 'translation pending';
-      translation.textContent = '翻译中…';
+      translation.textContent = $('preview').textContent || '翻译中…';
+      $('preview').textContent = '';
       row.append(source, translation);
       $('lines').append(row);
       if ($('lines').childElementCount > 64) $('lines').firstChild.remove();
       break;
     }
-    case 'partial': $('partial').textContent = msg.text; break;
+    case 'partial':
+      $('partial').textContent = msg.source ?? msg.text;
+      $('preview').textContent = msg.preview || '';
+      break;
     case 'translation': {
       const line = $('zh-' + msg.id);
       if (line) {
@@ -70,6 +75,7 @@ async function start() {
   $('toggle').textContent = '停止';
   $('status').textContent = '正在连接';
   $('lines').replaceChildren();
+  $('preview').textContent = '';
   $('partial').textContent = '';
   try {
     const [tab] = await chrome.tabs.query({active:true,currentWindow:true});
